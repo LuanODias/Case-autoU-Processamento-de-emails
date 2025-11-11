@@ -1,0 +1,112 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
+    <link as="style"
+        href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40300%3B400%3B500%3B600%3B700%3B800&amp;family=Material+Symbols+Outlined"
+        onload="this.rel='stylesheet'" rel="stylesheet" />
+    <title>E-classifier - Classificador de emails</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+        --primary-white: #ffffff;
+        --secondary-light-grey: #f0f4f8;
+        --text-dark: #1f2937;
+        --text-muted: #6b7280;
+        --accent-blue: #2563eb;
+        --border-light: #d1d5db;
+        --hover-bg: #e5e7eb;
+        --input-bg: #f9fafb;
+        --shadow-light: rgba(0, 0, 0, 0.05);
+      }
+    </style>
+</head>
+
+<body class="bg-[var(--primary-white)]" style='font-family: "Inter", sans-serif;'>
+    <div
+        class="relative flex h-auto min-h-screen w-full flex-col bg-[var(--primary-white)] group/design-root overflow-x-hidden text-[var(--text-dark)]">
+        <div class="layout-container flex h-full grow flex-col">
+            <!-- Header -->
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[var(--border-light)] px-6 py-4 md:px-10 shadow-sm bg-[var(--primary-white)]">
+                <div class="flex items-center gap-2 text-[var(--text-dark)]">
+                    <div class="size-6">
+                        <img class="w-full h-auto max-w-sm" src="assets/images/logo.svg" alt="Logotipo">
+                    </div>
+                    <h2 class="text-[var(--text-dark)] text-xl font-bold leading-tight tracking-[-0.015em]">E-Classifier
+                    </h2>
+                </div>
+                <div class="flex flex-1 justify-end gap-8">
+                    <div class="flex items-center gap-9">
+                        <a class="text-[var(--text-muted)] text-sm font-medium leading-normal hover:text-[var(--accent-blue)]"
+                            href="#">Contato</a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main -->
+            <main class="flex flex-1 justify-center py-8 px-6 bg-[var(--secondary-light-grey)]">
+                <div class="layout-content-container flex w-full max-w-7xl gap-8 flex-col lg:flex-row">
+                    <!-- Seção de inputs -->
+                    <section
+                        class="flex flex-col w-full lg:w-1/3 bg-[var(--primary-white)] rounded-xl shadow-md p-6 h-fit">
+                        <h3 class="text-[var(--text-dark)] tracking-tight text-2xl font-bold leading-tight pb-6">
+                            Processar Fluxo
+                        </h3>
+                        <div class="flex flex-col gap-5">
+                            <div
+                                class="flex flex-col items-center justify-center gap-6 rounded-lg border-2 border-dashed border-[var(--border-light)] p-8 min-h-[180px] hover:border-[var(--accent-blue)] transition-colors duration-200 bg-[var(--input-bg)]">
+                                <p class="text-[var(--text-dark)] text-lg font-medium leading-normal text-center">
+                                    Arraste e solte arquivos (.txt, .pdf) aqui
+                                </p>
+                                <button
+                                    class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-[var(--accent-blue)] text-white text-base font-semibold leading-normal hover:bg-opacity-90 transition-colors duration-200 shadow-sm">
+                                    <span class="truncate">Procurar arquivos</span>
+                                </button>
+                            </div>
+                            <p class="text-[var(--text-muted)] text-base font-normal leading-normal text-center my-3">OU
+                            </p>
+                            <label class="flex flex-col">
+                                <textarea
+                                    class="form-textarea flex w-full min-w-0 flex-1 resize-y overflow-hidden rounded-lg text-[var(--text-dark)] focus:outline-0 focus:ring-0 border border-[var(--border-light)] bg-[var(--input-bg)] focus:border-[var(--accent-blue)] min-h-[180px] placeholder:text-[var(--text-muted)] p-4 text-base font-normal leading-normal shadow-sm"
+                                    placeholder="Cole os dados do fluxo de trabalho aqui para análise..."></textarea>
+                            </label>
+                            <div class="flex pt-4">
+                                <button
+                                    class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 flex-1 bg-[var(--accent-blue)] text-white text-lg font-bold leading-normal hover:bg-opacity-90 transition-colors duration-200 shadow-md">
+                                    <span class="truncate">Iniciar Análise</span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Seção resultados -->
+                    <section class="flex flex-col w-full lg:w-2/3 bg-[var(--primary-white)] rounded-xl shadow-md p-6">
+                        <h3 class="text-[var(--text-dark)] tracking-tight text-2xl font-bold leading-tight pb-6">
+                            Resultado
+                        </h3>
+                        <div
+                            class="flex flex-col items-center justify-center flex-1 gap-8 p-8 rounded-lg bg-[var(--secondary-light-grey)] border border-[var(--border-light)] min-h-[400px]">
+                            <span class="material-symbols-outlined text-[var(--text-muted)] text-9xl"> analytics </span>
+                            <div class="flex max-w-[560px] flex-col items-center gap-3">
+                                <p
+                                    class="text-[var(--text-dark)] text-2xl font-semibold leading-tight tracking-[-0.015em] text-center">
+                                    Pronto para classificar seus emails?
+                                </p>
+                                <p class="text-[var(--text-muted)] text-base font-normal leading-normal text-center">
+                                    Adicione um email ao lado para verificar a classificação e as sugestões de
+                                    resposta aqui.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>
