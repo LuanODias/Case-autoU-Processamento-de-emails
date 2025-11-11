@@ -58,10 +58,11 @@
                         <div class="flex flex-col gap-5">
                             <div
                                 class="flex flex-col items-center justify-center gap-6 rounded-lg border-2 border-dashed border-[var(--border-light)] p-8 min-h-[180px] hover:border-[var(--accent-blue)] transition-colors duration-200 bg-[var(--input-bg)]">
+                                <input type="file" id="file-input" class="hidden" accept=".txt,.pdf" />
                                 <p class="text-[var(--text-dark)] text-lg font-medium leading-normal text-center">
                                     Arraste e solte arquivos (.txt, .pdf) aqui
                                 </p>
-                                <button
+                                <button id="browse-btn"
                                     class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-[var(--accent-blue)] text-white text-base font-semibold leading-normal hover:bg-opacity-90 transition-colors duration-200 shadow-sm">
                                     <span class="truncate">Procurar arquivos</span>
                                 </button>
@@ -107,6 +108,7 @@
         </div>
     </div>
     </div>
+    <script src="assets/js/script.js"></script>
 </body>
 
 </html>
