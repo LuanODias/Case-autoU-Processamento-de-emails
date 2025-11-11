@@ -1,0 +1,7 @@
+Assunto: Erro ao gerar relatório de vendas
+
+Corpo: Olá equipe de suporte, Não estou conseguindo gerar o relatório de vendas deste mês. O sistema exibe a mensagem "Erro 504: Gateway Timeout" sempre que tento acessar a funcionalidade.
+
+Podem verificar o que está acontecendo? Preciso desse relatório até o final da tarde.
+
+Obrigado(a).

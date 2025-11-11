@@ -1,0 +1,9 @@
+Assunto: Como configuro um novo usuário no sistema?
+
+Corpo: Bom dia,
+
+Temos um novo analista na equipe e preciso criar um perfil de acesso para ele no CRM. Tentei seguir o manual, mas a opção "Adicionar Usuário" não está visível para mim.
+
+Meu perfil tem permissão para isso? Se não, podem criar o usuário para mim?
+
+Grato(a).

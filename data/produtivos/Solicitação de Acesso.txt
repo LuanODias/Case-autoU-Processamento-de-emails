@@ -1,0 +1,13 @@
+Solicitação de Acesso
+
+Assunto: Liberação de acesso à pasta "Projetos 2025"
+
+Corpo: Olá TI,
+
+Fui alocado no novo projeto "Delta" e preciso de acesso de leitura e escrita à pasta compartilhada "\Servidor\Projetos 2025".
+
+Meu gerente, Célio, está em cópia para aprovação.
+
+Podem me avisar assim que estiver liberado?
+
+Obrigado.

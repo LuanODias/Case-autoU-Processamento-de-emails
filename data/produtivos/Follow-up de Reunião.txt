@@ -1,0 +1,11 @@
+Assunto: Próximos passos - Reunião de Alinhamento
+
+Corpo: Pessoal,
+
+Obrigado pela reunião de hoje. Conforme alinhado, fiquei responsável por estruturar o escopo do novo dashboard.
+
+[Nome da Pessoa 1], você pode me enviar os dados de acesso ao banco de dados de produção (somente leitura) até amanhã?
+
+[Nome da Pessoa 2], fico no aguardo da documentação da API que mencionou.
+
+Abs.

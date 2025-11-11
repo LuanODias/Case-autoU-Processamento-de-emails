@@ -1,0 +1,9 @@
+Assunto: RE: Chamado #2025-452 - Problema de login
+
+Corpo: Prezado(a),
+
+Realizei os procedimentos que você indicou (limpar cache e redefinir senha), mas o problema persiste. A tela de login fica carregando infinitamente.
+
+Há algum outro passo que eu possa tentar ou a equipe de infra precisa investigar?
+
+No aguardo.
