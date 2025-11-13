@@ -130,36 +130,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Leitura do arquivo selecionado
   fileInput.addEventListener("change", (event) => {
+    hideError(); // Limpa erros antigos ao iniciar
     const file = event.target.files[0];
-    if (!file) return;
+    if (!file) return; // Verifica se possui arquivo
 
-    fileNameDisplay.textContent = file.name;
-    uploadPrompt.classList.add("hidden");
-    fileConfirmation.classList.remove("hidden");
+    if (file.type === "text/plain" || file.type === "application/pdf") {
+      // Se for válido, continua
+      fileNameDisplay.textContent = file.name;
+      uploadPrompt.classList.add("hidden");
+      fileConfirmation.classList.remove("hidden");
 
-    console.log("Processando arquivo...", file.name);
-    const reader = new FileReader();
+      console.log("Processando arquivo...", file.name);
+      const reader = new FileReader();
 
-    if (file.type === "text/plain") {
-      reader.onload = (e) => {
-        emailTextarea.value = e.target.result;
-        console.log("Arquivo .txt carregado no textarea.");
-      };
-      reader.readAsText(file);
-    } else if (file.type === "application/pdf") {
-      reader.onload = (e) => {
-        const base64content = e.target.result.split(",")[1];
-        console.log("PDF lido como Base64. Enviando para o backend...");
-        processPdfInBackend(base64content, file.name);
-      };
-      reader.readAsDataURL(file);
+      if (file.type === "text/plain") {
+        reader.onload = (e) => {
+          emailTextarea.value = e.target.result;
+          console.log("Arquivo .txt carregado no textarea.");
+        };
+        reader.readAsText(file);
+      } else if (file.type === "application/pdf") {
+        reader.onload = (e) => {
+          const base64content = e.target.result.split(",")[1];
+          console.log("PDF lido como Base64. Enviando para o backend...");
+          processPdfInBackend(base64content, file.name);
+        };
+        reader.readAsDataURL(file);
+      }
     } else {
-      errorMessage.textContent =
-        "Tipo de arquivo não suportado. Por favor, use .txt ou .pdf.";
-      removeFileBtn.click();
+      //Se for inválido, mostra o erro e reseta a UI manualmente
+      errorMessage.textContent = `Tipo de arquivo não suportado. Por favor, use .txt ou .pdf.`;
+      errorMessage.classList.remove("hidden"); // Mostra o erro
+
+      // Reseta a UI sem chamar hideError()
+      fileInput.value = null;
+      fileConfirmation.classList.add("hidden");
+      uploadPrompt.classList.remove("hidden");
     }
   });
-
   emailTextarea.addEventListener("input", hideError);
 
   // Processar PDF no Backend
