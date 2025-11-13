@@ -27,7 +27,7 @@ except Exception as e:
 app = FastAPI()
 
 # Configuração do CORS
-origins = ["http://127.0.0.1", "http://localhost", "null"]
+origins = ["*"] # Permitindo todas as origens, visto que é um app de desafio
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -49,39 +49,110 @@ class PdfRequest(BaseModel):
     
 # 3. O "Prompt do Sistema" - A instrução para a IA
 SYSTEM_PROMPT = """
-Você é um assistente de IA especialista em classificar e-mails para uma empresa.
-Sua tarefa é analisar o e-mail fornecido e retornar um objeto JSON.
+Você é um assistente de IA especialista em **triagem e roteamento** de e-mails para uma empresa financeira.
+Sua tarefa é analisar o e-mail e retornar um objeto JSON.
 
 O JSON deve ter ESTRITAMENTE o seguinte formato:
 {
+  "reasoning": "...",
   "category": "...",
   "suggested_reply": "..."
 }
 
-As regras de classificação são:
-1.  **Produtivo**: E-mails que requerem uma ação ou resposta específica (ex.: solicitações de suporte, atualização sobre casos em aberto, dúvidas sobre o sistema, pedidos de reunião).
-2.  **Improdutivo**: Emails que não necessitam de uma ação imediata (ex.: mensagens de felicitações, agradecimentos, newsletters, spam, avisos gerais).
+### Campos JSON Explicados
+1.  **reasoning**: Uma análise em uma frase do *porquê* o e-mail se encaixa na categoria. (Ex: "O usuário está relatando um erro crítico que impede o uso do sistema.")
+2.  **category**: A categoria de triagem. Deve ser UMA das seguintes:
+    * `URGENT_SUPPORT`: Problema crítico, erro de sistema, sistema fora do ar, falha de pagamento, usuário impedido de trabalhar. (Ex: "servidor caiu", "erro 504", "não consigo logar").
+    * `STANDARD_SUPPORT`: Dúvida sobre funcionalidade, pedido de "como fazer", solicitação de acesso, alteração de dados. (Ex: "como gero o relatório?", "podem me dar acesso à pasta?").
+    * `INFO_REQUEST`: Pedido de status, solicitação de atualização, follow-up. (Ex: "qual o status do contrato?", "alguma atualização sobre o chamado 123?").
+    * `BILLING_ISSUE`: Dúvida sobre fatura, cobrança indevida, problema de faturamento. (Ex: "cobrança adicional", "fatura errada").
+    * `NO_ACTION_NEEDED`: E-mails que não requerem ação. (Ex: agradecimentos, felicitações, avisos de férias, FYI, spam, newsletters).
+3.  **suggested_reply**: Uma resposta profissional e **específica** para a categoria.
 
-A 'suggested_reply' deve ser uma resposta profissional curta e apropriada para o e-mail.
-- Se for 'Produtivo', a resposta deve ser algo como: "Recebemos sua solicitação e já estamos analisando. Entraremos em contato em breve."
-- Se for 'Improdutivo', a resposta deve ser algo como: "Obrigado por sua mensagem!" ou "Entendido, obrigado pelo aviso."
+### Regras de Resposta por Categoria
+* **Se `URGENT_SUPPORT`**: "Recebemos seu alerta crítico. Nossa equipe de engenharia já foi notificada e está tratando com prioridade máxima. Entraremos em contato assim que tivermos uma atualização."
+* **Se `STANDARD_SUPPORT`**: "Sua solicitação de suporte foi registrada. Um especialista de nossa equipe analisará seu pedido e responderá em breve."
+* **Se `INFO_REQUEST`**: "Recebemos sua solicitação de status. Estamos verificando a informação e retornaremos assim que possível."
+* **Se `BILLING_ISSUE`**: "Sua dúvida sobre faturamento foi recebida e encaminhada ao nosso time financeiro para análise. Eles entrarão em contato em breve."
+* **Se `NO_ACTION_NEDDED`**: "Obrigado por sua mensagem!"
 
-Responda APENAS com o objeto JSON. Não inclua "```json" ou qualquer outro texto antes ou depois.
+Responda APENAS com o objeto JSON. Não inclua "```json" ou qualquer outro texto.
 """
 
 
 def clean_email_text(text):
+    # Encontra o ponto de corte (o ruído)
     text_lower = text.lower()
-    # Remove assinaturas, etc.
-    text_lower = re.sub(r'atenciosamente,.*', '', text_lower, flags=re.DOTALL | re.IGNORECASE)
-    text_lower = re.sub(r'obrigado,.*', '', text_lower, flags=re.DOTALL | re.IGNORECASE)
-    return text_lower.strip()
+    
+    # Padrões desnecessários comuns para cortar
+    cut_off_patterns = [
+        # Marcadores de citação de e-mail
+        r'em \d{1,2}/\d{1,2}/\d{4}', # "Em 13/11/2025"
+        r'em \d{1,2} de \w+ de \d{4}', # "Em 13 de novembro de 2024"
+        r'on \w+, \w+ \d{1,2}, \d{4}', # "On Thu, Nov 13, 2025"
+        r'>(.*)\n', # Linhas de citação ( > )
+        r'de:',
+        r'from:',    
+        
+        # Assinaturas comuns (PT e EN)
+        r'atenciosamente',
+        r'obrigado',
+        r'grato\(a\)?',
+        r'grato',
+        r'abs,',
+        r'abraços,',
+        r'att\.,?',
+        r'best regards',
+        r'kind regards',
+        r'sincerely',
+        
+        # Disclaimers legais/confidenciais
+        r'esta mensagem pode conter',
+        r'this email may contain',
+        r'aviso legal',
+        r'confidencial'
+    ]
+
+    # Encontra o *primeiro* ponto de corte no e-mail
+    cut_off_index = len(text) # Assume o texto todo por padrão
+
+    for pattern in cut_off_patterns:
+        match = re.search(pattern, text_lower)
+        if match and match.start() < cut_off_index:
+            cut_off_index = match.start()
+
+    # Retorna o texto *original* (com casing) até o ponto de corte.
+    cleaned_text = text[:cut_off_index].strip()
+
+    # 3. Fallback: Se o "corte" removeu tudo (ex: um email que só diz "Obrigado"),
+    #    é melhor enviar o texto original curto do que nada.
+    if not cleaned_text:
+        return text.strip() 
+
+    return cleaned_text
 
 
 @app.post("/classify-email")
 async def classify_email(request: EmailRequest):
     
-    email_content = request.content
+    # --- TESTE TEMPORÁRIO ---
+    print("--- 1. EMAIL BRUTO ---")
+    print(request.content)
+    # ------------------------
+    
+      # Limpa o conteúdo do e-mail
+    email_content = clean_email_text(request.content)
+    
+    # --- TESTE TEMPORÁRIO ---
+    print("--- 2. EMAIL LIMPO (SINAL) ---")
+    print(email_content)
+    print("---------------------------------")
+    # ------------------------
+
+  
+    
+    if not email_content:
+        raise HTTPException(status_code=400, detail="E-mail vazio após limpeza.")
     
     if not groq_client:
         raise HTTPException(status_code=500, detail="Cliente Groq não inicializado. Verifique a API Key.")

@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const removeFileBtn = document.getElementById("remove-file-btn");
   const emailTextarea = document.getElementById("email-textarea");
   const analyzeBtn = document.getElementById("analyze-btn");
+  const errorMessage = document.getElementById("error-message");
 
   const resultsOutput = document.getElementById("results-output");
   // Salva o HTML do placeholder para podermos restaurá-lo
@@ -17,6 +18,57 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Endereço do Backend
   const API_BASE_URL = "";
+
+  // Função para limpar o erro
+  function hideError() {
+    if (!errorMessage.classList.contains("hidden")) {
+      errorMessage.classList.add("hidden");
+      errorMessage.textContent = "";
+    }
+  }
+
+  // Função para mapear categorias e cores
+  function mapCategoryToDisplay(category) {
+    if (!category) {
+      return { label: "Desconhecido", colorClass: "bg-gray-100 text-gray-800" };
+    }
+
+    const catLower = category.toLowerCase();
+
+    switch (catLower) {
+      case "urgent_support":
+        return {
+          label: "Produtivo (Urgente)",
+          colorClass: "bg-red-100 text-red-800",
+        };
+      case "standard_support":
+        return {
+          label: "Produtivo (Suporte)",
+          colorClass: "bg-blue-100 text-blue-800",
+        };
+      case "info_request":
+        return {
+          label: "Produtivo (Solicitação)",
+          colorClass: "bg-yellow-100 text-yellow-800",
+        };
+      case "billing_issue":
+        return {
+          label: "Produtivo (Faturamento)",
+          colorClass: "bg-purple-100 text-purple-800",
+        };
+      case "no_action_needed":
+        return {
+          label: "Improdutivo",
+          colorClass: "bg-green-100 text-green-800",
+        };
+      default:
+        // Caso a IA retorne algo inesperado
+        return {
+          label: category,
+          colorClass: "bg-gray-100 text-gray-800",
+        };
+    }
+  }
 
   // Botão "Procurar arquivo"
   browseBtn.addEventListener("click", () => {
@@ -55,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
   dropArea.addEventListener(
     "drop",
     (event) => {
+      hideError;
       const files = event.dataTransfer.files;
       if (files.length > 0) {
         fileInput.files = files;
@@ -72,6 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     uploadPrompt.classList.remove("hidden");
     emailTextarea.value = "";
     resultsOutput.innerHTML = resultsPlaceholder; // Restaura o placeholder
+    hideError();
   });
 
   // Leitura do arquivo selecionado
@@ -100,10 +154,13 @@ document.addEventListener("DOMContentLoaded", () => {
       };
       reader.readAsDataURL(file);
     } else {
-      alert("Tipo de arquivo não suportado. Por favor, use .txt ou .pdf.");
+      errorMessage.textContent =
+        "Tipo de arquivo não suportado. Por favor, use .txt ou .pdf.";
       removeFileBtn.click();
     }
   });
+
+  emailTextarea.addEventListener("input", hideError);
 
   // Processar PDF no Backend
   async function processPdfInBackend(base64, filename) {
@@ -138,10 +195,13 @@ document.addEventListener("DOMContentLoaded", () => {
       textContent.trim() === "" ||
       textContent.startsWith("Extraindo texto")
     ) {
-      alert("Por favor, cole um texto ou aguarde o carregamento do arquivo.");
+      errorMessage.textContent =
+        "Por favor, cole um texto ou aguarde o carregamento do arquivo.";
+      errorMessage.classList.remove("hidden");
       return;
     }
 
+    hideError();
     analyzeBtn.disabled = true;
     analyzeBtn.querySelector("span").textContent = "Analisando...";
     resultsOutput.innerHTML = `
@@ -182,24 +242,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await response.json();
       // Exibe os resultados
-      const categoryClass =
-        data.category.toLowerCase() === "produtivo"
-          ? "bg-blue-100 text-blue-800"
-          : "bg-green-100 text-green-800";
+      const displayData = mapCategoryToDisplay(data.category);
 
       resultsOutput.innerHTML = `
-          <div class="flex flex-col gap-6 text w-full">
-              <div>
-                  <h4 class="text-sm font-semibold text-[var(--text-muted)] uppercase">Categoria</h4>
-                  <span class="inline-block px-3 py-1 mt-2 text-lg font-bold rounded-full ${categoryClass}">
-                      ${data.category}
-                  </span>
-              </div>
-              <div>
-                  <h4 class="text-sm font-semibold text-[var(--text-muted)] uppercase">Resposta Sugerida</h4>
-                  <pre class="mt-2 p-4 rounded-lg bg-white border border-[var(--border-light)] whitespace-pre-wrap font-sans text-base text-[var(--text-dark)]">${data.suggested_reply}</pre>
-              </div>
-          </div>`;
+                <div class="flex flex-col gap-6 text w-full">
+                    
+                    <div>
+                        <h4 class="text-sm font-semibold text-[var(--text-muted)] uppercase">Categoria</h4>
+                        <span class="inline-block px-3 py-1 mt-2 text-lg font-bold rounded-full ${displayData.colorClass}">
+                            ${displayData.label}
+                        </span>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-[var(--text-muted)] uppercase">Justificativa da IA</h4>
+                        <p class="mt-2 p-4 rounded-lg bg-white border border-[var(--border-light)] text-base text-[var(--text-dark)] italic">
+                            "${data.reasoning}"
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-[var(--text-muted)] uppercase">Resposta Sugerida</h4>
+                        <pre class="mt-2 p-4 rounded-lg bg-white border border-[var(--border-light)] whitespace-pre-wrap font-sans text-base text-[var(--text-dark)]">${data.suggested_reply}</pre>
+                    </div>
+
+                </div>`;
     } catch (error) {
       // Exibe mensagem de erro
       console.error("Falha ao classificar:", error);
