@@ -7,7 +7,7 @@
         href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40300%3B400%3B500%3B600%3B700%3B800&amp;family=Material+Symbols+Outlined"
         onload="this.rel='stylesheet'" rel="stylesheet" />
     <title>E-classifier - Classificador de emails</title>
-    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon" />
+    <link href="assets/images/logo.svg" rel="icon" type="image/x-icon" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <style type="text/tailwindcss">
         :root {
@@ -108,20 +108,24 @@
                         <h3 class="text-[var(--text-dark)] tracking-tight text-2xl font-bold leading-tight pb-6">
                             Resultado
                         </h3>
-                        <div
-                            class="flex flex-col items-center justify-center flex-1 gap-8 p-8 rounded-lg bg-[var(--secondary-light-grey)] border border-[var(--border-light)] min-h-[400px]">
-                            <span class="material-symbols-outlined text-[var(--text-muted)] text-9xl"> analytics </span>
-                            <div class="flex max-w-[560px] flex-col items-center gap-3">
-                                <p
-                                    class="text-[var(--text-dark)] text-2xl font-semibold leading-tight tracking-[-0.015em] text-center">
-                                    Pronto para classificar seus emails?
-                                </p>
-                                <p class="text-[var(--text-muted)] text-base font-normal leading-normal text-center">
-                                    Adicione um email ao lado para verificar a classificação e as sugestões de
-                                    resposta aqui.
-                                </p>
+                        <div id="results-output"
+                            class="flex flex-col justify-center flex-1 gap-8 p-8 rounded-lg bg-[var(--secondary-light-grey)] border border-[var(--border-light)] min-h-[400px]">
+
+                            <div id="results-placeholder" class="flex flex-col items-center gap-3 text-center">
+                                <span class="material-symbols-outlined text-[var(--text-muted)] text-9xl"> analytics
+                                </span>
+                                <div class="flex max-w-[560px] flex-col items-center gap-3">
+                                    <p
+                                        class="text-[var(--text-dark)] text-2xl font-semibold leading-tight tracking-[-0.015em] text-center">
+                                        Pronto para classificar seus emails?
+                                    </p>
+                                    <p
+                                        class="text-[var(--text-muted)] text-base font-normal leading-normal text-center">
+                                        Adicione um email ao lado para verificar a classificação e as sugestões de
+                                        resposta aqui.
+                                    </p>
+                                </div>
                             </div>
-                        </div>
                     </section>
                 </div>
             </main>

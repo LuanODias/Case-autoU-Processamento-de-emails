@@ -5,19 +5,25 @@ from fastapi.middleware.cors import CORSMiddleware # CORS
 from groq import Groq # Cliente Groq para interagir com a API do Groq
 from dotenv import load_dotenv # Carrega variáveis de ambiente do .env
 import json # Para manipulação de JSON
+import re # Importe o 're' para o clean_email_text
+import base64 # Para decodificar PDF
+import io # Para ler PDF
+import pdfplumber # Para ler PDF
 
-# 1. Carrega o .env
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# Carrega o .env
 load_dotenv()
 
-# 2. Inicializa o cliente do Groq
+# Inicializa o cliente do Groq
 try:
     groq_client = Groq()
 except Exception as e:
     print(f"Erro ao inicializar o cliente Groq: {e}")
-    # Você pode querer lidar com isso de forma mais robusta
-    # Por enquanto, vamos permitir que o app continue, mas a API falhará.
+    groq_client = None # Define como None para podermos checar depois
 
-# Inicializa o app FastAPI
+# Inicializa o FastAPI
 app = FastAPI()
 
 # Configuração do CORS
@@ -30,10 +36,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Modelo de Dados (O que esperamos receber do frontend)
+# Modelo de Dados
 class EmailRequest(BaseModel):
-    email_text: str
+    filename: str
+    fileType: str
+    content: str
 
+# Modelo para o novo endpoint de PDF
+class PdfRequest(BaseModel):
+    content_base64: str
+    filename: str
+    
 # 3. O "Prompt do Sistema" - A instrução para a IA
 SYSTEM_PROMPT = """
 Você é um assistente de IA especialista em classificar e-mails para uma empresa.
@@ -58,34 +71,23 @@ Responda APENAS com o objeto JSON. Não inclua "```json" ou qualquer outro texto
 
 
 def clean_email_text(text):
-    # Remove assinaturas comuns
-    text = re.sub(r'--\s*.*', '', text, flags=re.DOTALL) # Remove "--" (assinatura)
-    text = re.sub(r'Atenciosamente,.*', '', text, flags=re.DOTALL | re.IGNORECASE)
-    text = re.sub(r'Obrigado,.*', '', text, flags=re.DOTALL | re.IGNORECASE)
-    # Remove texto de resposta anterior
-    text = re.sub(r'Em \d{1,2}/\d{1,2}/\d{4},.*escreveu:', '', text, flags=re.DOTALL | re.IGNORECASE)
-    text = re.sub(r'De:.*', '', text, flags=re.IGNORECASE)
-    
-    return text.strip() # Remove espaços em branco extras
+    text_lower = text.lower()
+    # Remove assinaturas, etc.
+    text_lower = re.sub(r'atenciosamente,.*', '', text_lower, flags=re.DOTALL | re.IGNORECASE)
+    text_lower = re.sub(r'obrigado,.*', '', text_lower, flags=re.DOTALL | re.IGNORECASE)
+    return text_lower.strip()
 
-    if "obrigado" in email_text_lower or \
-       "agradeço" in email_text_lower or \
-       "recebido" in email_text_lower:
-        # Cuidado: "obrigado, mas ainda não funciona" é produtivo.
-        # Esta é uma regra simples, mas é um bom começo.
-        if len(email_text_lower.split()) < 10: # Se for um e-mail curto
-            return {
-                "category": "Improdutivo",
-                "suggested_reply": "Obrigado por sua mensagem!"
-            }
 
 @app.post("/classify-email")
 async def classify_email(request: EmailRequest):
     
-    email_content = request.email_text
-
+    email_content = request.content
+    
+    if not groq_client:
+        raise HTTPException(status_code=500, detail="Cliente Groq não inicializado. Verifique a API Key.")
+    
     try:
-        # 4. A chamada para a API do Groq
+        # chamada para a API do Groq
         chat_completion = groq_client.chat.completions.create(
             messages=[
                 {
@@ -103,10 +105,10 @@ async def classify_email(request: EmailRequest):
             response_format={"type": "json_object"}, 
         )
 
-        # 6. Processar a resposta
+        # Processa a resposta
         raw_response = chat_completion.choices[0].message.content
         
-        # O Groq já nos entrega um JSON validado
+        # O Groq entrega o JSON
         json_response = json.loads(raw_response)
 
         # Retorna o JSON processado direto para o frontend
@@ -116,3 +118,31 @@ async def classify_email(request: EmailRequest):
         # Em caso de erro na API do Groq ou no JSON
         print(f"Erro na chamada da API: {e}")
         raise HTTPException(status_code=500, detail="Erro ao processar o e-mail com a IA.")
+    
+    
+    
+@app.post("/extract-text-from-pdf")
+async def extract_text_from_pdf(request: PdfRequest):
+    try:
+        decoded_data = base64.b64decode(request.content_base64)
+        pdf_file = io.BytesIO(decoded_data)
+        text_content = ""
+        
+        with pdfplumber.open(pdf_file) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text_content += page_text + "\n"
+        
+        return {"text_content": text_content.strip()}
+    except Exception as e:
+        print(f"Erro ao processar PDF {request.filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro ao ler o arquivo PDF: {e}")
+    
+# Carrega os arquivos da pasta "assets"
+app.mount("/assets", StaticFiles(directory="assets"), name="assets")
+
+# Retorna o seu arquivo index.html
+@app.get("/")
+async def read_index():
+    return FileResponse("index.html")
