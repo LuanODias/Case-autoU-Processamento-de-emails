@@ -1,4 +1,6 @@
-# 🤖 E-Classifier - Classificador de E-mails com IA (Desafio AutoU)
+![Demonstração do E-Classifier](assets/images/printscreen.png)
+
+# E-Classifier - Classificador de E-mails (Desafio AutoU)
 
 Este projeto é uma solução web _full-stack_ para o desafio de processamento de e-mails da AutoU.
 
