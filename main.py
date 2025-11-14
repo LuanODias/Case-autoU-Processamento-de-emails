@@ -47,7 +47,7 @@ class PdfRequest(BaseModel):
     content_base64: str
     filename: str
     
-# 3. O "Prompt do Sistema" - A instrução para a IA
+# O "Prompt do Sistema" - A instrução para a IA
 SYSTEM_PROMPT = """
 Você é um assistente de IA especialista em **triagem e roteamento** de e-mails para uma empresa financeira.
 Sua tarefa é analisar o e-mail e retornar um objeto JSON.
@@ -124,8 +124,8 @@ def clean_email_text(text):
     # Retorna o texto *original* (com casing) até o ponto de corte.
     cleaned_text = text[:cut_off_index].strip()
 
-    # 3. Fallback: Se o "corte" removeu tudo (ex: um email que só diz "Obrigado"),
-    #    é melhor enviar o texto original curto do que nada.
+    # Fallback: Se o "corte" removeu tudo (ex: um email que só diz "Obrigado"),
+    # é melhor enviar o texto original curto do que nada.
     if not cleaned_text:
         return text.strip() 
 
@@ -214,6 +214,6 @@ async def extract_text_from_pdf(request: PdfRequest):
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
 # Retorna o seu arquivo index.html
-@app.get("/")
+    @app.get("/")
 async def read_index():
     return FileResponse("index.html")
