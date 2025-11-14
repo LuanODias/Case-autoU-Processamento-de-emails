@@ -1,0 +1,16 @@
+Assunto: Status
+Corpo: Podem verificar o chamado #12345?
+Obrigado.
+
+---
+Atenciosamente,
+Luan Dias
+Gerente de Projetos
+
+> Em 13 de nov. de 2025, às 10:00, Fulano <fulano@email.com> escreveu:
+>
+> Equipe,
+>
+> O sistema está ok?
+>
+> Aviso Legal: Esta mensagem pode conter informação confidencial...

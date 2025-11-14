@@ -1,0 +1,1 @@
+Assunto: URGENTE - SISTEMA DE PAGAMENTOS FORA DO AR Corpo: Ninguém na equipe de faturamento consegue processar pagamentos. Estamos parados. O sistema exibe a mensagem "Erro 504: Gateway Timeout" sempre que tentamos acessar o módulo. Isso é crítico e está afetando a receita. Precisamos de uma posição da engenharia agora.

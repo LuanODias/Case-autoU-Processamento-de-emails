@@ -1,0 +1,1 @@
+Assunto: Dúvida sobre permissões de usuário Corpo: Bom dia, Estou tentando criar um perfil de acesso para um novo analista no CRM, mas a opção "Adicionar Usuário" não está visível para mim. Tentei seguir o manual, mas parei nessa parte. Meu perfil não tem permissão? Podem verificar, por favor? Grato(a).
