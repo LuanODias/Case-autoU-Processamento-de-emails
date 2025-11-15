@@ -214,6 +214,6 @@ async def extract_text_from_pdf(request: PdfRequest):
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
 # Retorna o seu arquivo index.html
-    @app.get("/")
+@app.get("/")
 async def read_index():
     return FileResponse("index.html")
